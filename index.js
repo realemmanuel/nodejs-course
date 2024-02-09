@@ -53,6 +53,26 @@ app.get("/api/persons/delete/:id", async (request, response) => {
   }
 });
 
+app.put("/api/persons/update/:id", async (request, response) => {
+  try {
+    const { name, number } = request.body;
+
+    const updatedPerson = await Person.findByIdAndUpdate(
+      request.params.id,
+      { name, number, createdAt: new Date() },
+      { new: true, runValidators: true, context: "query" }
+    );
+
+    if (!updatedPerson) {
+      return response.status(404).json({ error: "Person not found" });
+    }
+
+    response.json(updatedPerson);
+  } catch (error) {
+    response.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 app.post("/api/post/persons", async (request, response) => {
   const body = request.body;
 
@@ -84,6 +104,7 @@ app.post("/api/post/persons", async (request, response) => {
 });
 
 const PORT = process.env.PORT;
+
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
